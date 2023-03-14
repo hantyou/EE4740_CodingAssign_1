@@ -109,8 +109,76 @@ fig_export.Height=3;
 hgexport(gcf,fname,fig_export);
 savefig(gcf,fname);
 close gcf
+%% Calculate PSNR OMP
+PSNR_OMP=zeros(N_K,1);
+for k=1:N_K
+    err=0;
+    for i=1:h_group
+        for j=1:w_group
+            err=err+psnr(I_Recovered_OMP{i,j,k},I_Patches{i,j});
+        end
+    end
+    PSNR_OMP(k)=err/h_group/w_group;
+end
 
+%% Calculate PSNR ISTA
+PSNR_ISTA=zeros(N_K,1);
+for k=1:N_K
+    err=0;
+    for i=1:h_group
+        for j=1:w_group
+            err=err+psnr(I_Recovered_ISTA{i,j,k},I_Patches{i,j});
+        end
+    end
+    PSNR_ISTA(k)=err/h_group/w_group;
+end
+save("data4plot.mat");
+%% Plot PSNR results
+gcf=figure;
+for k=1:N_K
+    subplot(ceil(N_K/2),2,k);
+    imshow(I_Recovered_OMP_complete{k});
+    title(sprintf("S=%d, PSNR=%.4f dB",Ks(k),PSNR_OMP(k)));
+end
+fname="OMP recover results PSNR";
+sgtitle("OMP recover results");
 
+fig_export=hgexport('factorystyle');
+fig_export.Resolution=300;
+fig_export.Format='png';
+fig_export.Width=10;
+fig_export.Height=5;
+hgexport(gcf,fname,fig_export);
+savefig(gcf,fname);
+close gcf;
+
+gcf=figure;
+for k=1:N_K
+    subplot(ceil(N_K/2),2,k);
+    imshow(I_Recovered_ISTA_complete{k});
+    title(sprintf("S=%d, PSNR=%.4f dB",Ks(k),PSNR_ISTA(k)));
+end
+fname="ISTA recover results PSNR";
+sgtitle("ISTA recover results");
+hgexport(gcf,fname,fig_export);
+savefig(gcf,fname);
+close gcf;
+%% Plot PSNR comparison
+gcf=figure;
+plot(Ks,PSNR_OMP,'-*');
+hold on ;
+plot(Ks,PSNR_ISTA,'-^');
+hold off
+legend("OMP","ISTA",'Location','southeast');
+fname="PSNR comparison of OMP and ISTA";
+title("PSNR comparison of OMP and ISTA");
+ylabel("PSNR (dB)")
+xlabel("Sparsity S")
+fig_export.Width=5;
+fig_export.Height=3;
+hgexport(gcf,fname,fig_export);
+savefig(gcf,fname);
+close gcf
 %%
 function [s_hat,H_hat,idices] = OMP(y,H,sigma_n)
 [M,N]=size(H);
