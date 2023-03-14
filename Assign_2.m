@@ -216,9 +216,9 @@ for k=1:N_K
     D_m=[];
     for p=1:K
         d_m=vec(randi([-1 1],h,w));
-        D_m=[D_m;d_m'];
+        D_m=[D_m;d_m'];% Take several measurement 
     end
-    H=D_m*U_kron;
+    H=D_m*U_kron; % concatenated everything into a measurement matrix
     
     tic
     % Prepare the cells that are in proper structure for parallel processing
@@ -227,7 +227,7 @@ for k=1:N_K
     I_Recovered_par_k=cell(h_group*w_group,1);
     % Start Parallel Processing
     parfor iter=1:h_group*w_group
-        y=H*J_Patches_vec_par{iter}+sigma_n*randn(K,1);
+        y=H*J_Patches_vec_par{iter}+sigma_n*randn(K,1); % take measurement
         if method=="OMP"
             [J_hat_vec_par{iter},~,~] = OMP(y,H,sigma_n);
         else
