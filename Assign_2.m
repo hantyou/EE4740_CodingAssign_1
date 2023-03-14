@@ -64,21 +64,51 @@ end
 Err_ISTA_db=mag2db(Err_ISTA);
 save("data4plot.mat");
 %% Plot results
-figure;
+gcf=figure;
 for k=1:N_K
-    subplot(ceil(N_K/4),4,k);
+    subplot(ceil(N_K/2),2,k);
     imshow(I_Recovered_OMP_complete{k});
-    title(sprintf("K=%d, Err=%.4f dB",Ks(k),Err_OMP_db(k)));
+    title(sprintf("S=%d, Err=%.4f dB",Ks(k),Err_OMP_db(k)));
 end
+fname="OMP recover results";
 sgtitle("OMP recover results");
 
-figure;
+fig_export=hgexport('factorystyle');
+fig_export.Resolution=300;
+fig_export.Format='png';
+fig_export.Width=10;
+fig_export.Height=5;
+hgexport(gcf,fname,fig_export);
+savefig(gcf,fname);
+close gcf;
+
+gcf=figure;
 for k=1:N_K
-    subplot(ceil(N_K/4),4,k);
+    subplot(ceil(N_K/2),2,k);
     imshow(I_Recovered_ISTA_complete{k});
-    title(sprintf("K=%d, Err=%.4f dB",Ks(k),Err_ISTA_db(k)));
+    title(sprintf("S=%d, Err=%.4f dB",Ks(k),Err_ISTA_db(k)));
 end
+fname="ISTA recover results";
 sgtitle("ISTA recover results");
+hgexport(gcf,fname,fig_export);
+savefig(gcf,fname);
+close gcf;
+%% Plot Err comparison
+gcf=figure;
+plot(Ks,Err_OMP_db,'-*');
+hold on ;
+plot(Ks,Err_ISTA_db,'-^');
+hold off
+legend("OMP","ISTA");
+fname="Error comparison of OMP and ISTA";
+title("Error comparison of OMP and ISTA");
+ylabel("MSE (dB)")
+xlabel("Sparsity S")
+fig_export.Width=5;
+fig_export.Height=3;
+hgexport(gcf,fname,fig_export);
+savefig(gcf,fname);
+close gcf
 
 
 %%
@@ -125,7 +155,7 @@ J_D=abs(diag(J_D));
 beta=J_D(1);
 ita=1/2/beta;
 
-lambda=20;
+lambda=10;
 
 s_hat=zeros(N,1);
 p=zeros(N,1);
