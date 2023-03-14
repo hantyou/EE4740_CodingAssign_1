@@ -38,6 +38,7 @@ octave-workspace
 *.jpg
 *.eps
 *.jpeg
-# *.png
+!MESSI_image.jpeg
+*.png
 .nfs*
 *conflicated\ copy*
