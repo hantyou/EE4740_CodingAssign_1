@@ -3,13 +3,13 @@ rng(990611)
 %% image read
 I=imread("MESSI_image.jpeg");
 I=rgb2gray(I);
-I=imresize(I,0.5);
+% I=imresize(I,0.5);
 I=double(I)/255;
 [H,W]=size(I);
 figure,
 imshow(I);
 sigma_n=sqrt(1e-3);
-h=16;w=16; % patch height and width
+h=32;w=32; % patch height and width
 n=h*w;
 N_K=3;
 Ks=round(2.^linspace(8,10,N_K));
@@ -29,7 +29,7 @@ if isempty(p)
     poolNum=min(w_group*h_group,16);
     parpool(poolNum);
 end
-for lambda=[10]
+for lambda=[20]
     %% OMP sampling and recovery exp
     D=dctmtx(h);
     method="OMP";
@@ -192,12 +192,12 @@ save("data4plot.mat");
 %%
 function [s_hat,H_hat,idices] = OMP(y,H,sigma_n)
 [M,N]=size(H);
-maxIter=N;
+maxIter=M;
 iterflag=1;
 epsilon=1e-4;
 r_i=y;
 y_i=zeros(size(y));
-idices=zeros(1,N);
+idices=zeros(N,1);
 iterNum=0;
 H_i=zeros(size(H));
 while iterflag
@@ -205,13 +205,16 @@ while iterflag
     %%% OMP goes here
     r=abs(r_i'*H); % calculate correlation
     idx=find(r==max(r)); % find maximum idx
-    idices(idx)=1;
-    H_i(:,idx)=H(:,idx); % update H_i
+    idices(idx)=idx;
+    H_i=H(:,idx); % update H_i
     P_i=H_i*pinv(H_i); % calculate projection onto current signal subspace
-    r_i=(eye(M)-P_i)*r_i; % calculate residual
+    r_i=r_i-P_i*r_i; % calculate residual
     %%% OMP ends here
-    if norm(r_i,2)<epsilon+sigma_n||iterNum>=maxIter
+    if norm(r_i,2)<(epsilon+sigma_n)||iterNum>=maxIter
         iterflag=0;
+        H_i=zeros(size(H));
+        idices(idices==0)=[];
+        H_i(:,idices')=H(:,idices');
     end
 end
 H_hat=H_i;
@@ -236,17 +239,19 @@ ita=1/2/beta;
 
 s_hat=zeros(N,1);
 p=zeros(N,1);
-
+HH=H'*H;
+Hy=H'*y;
+c=lambda*ita;
 while iterflag
     iterNum=iterNum+1;
     %%% ISTA goes here
-    p=s_hat-ita*2*H'*(H*s_hat-y);
-    c=lambda*ita;
+    p=s_hat-(ita*2*HH*s_hat-ita*2*Hy);
     s_hat=softThreshold(p,c);
     y_est=H*s_hat;
     %%% ISTA ends here
-    if norm(y-y_est,2)<epsilon+sigma_n||iterNum>=maxIter
+    if norm(y-y_est,2)<(epsilon+sigma_n)||iterNum>=maxIter
         iterflag=0;
+        sprintf("iter=%d, err=%.4f", iterNum, norm(y-y_est,2))
     end
 end
 H_hat=[];
@@ -312,7 +317,7 @@ for k=1:N_K
         if method=="OMP"
             [J_hat_vec_par{iter},~,~] = OMP(y,H,sigma_n);
         else
-            [J_hat_vec_par{iter},~,~] = ISTA(y,H,lambda,sigma_n)
+            [J_hat_vec_par{iter},~,~] = ISTA(y,H,lambda,sigma_n);
         end
         J_hat_vec_par{iter}=reshape(J_hat_vec_par{iter},[h,w]);
         I_Recovered_par_k{iter}=D*J_hat_vec_par{iter}*D';
