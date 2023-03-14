@@ -71,7 +71,7 @@ for lambda=[10]
         imshow(I_Recovered_OMP_complete{k});
         title(sprintf("S=%d, Err=%.4f dB",Ks(k),Err_OMP_db(k)));
     end
-    fname="OMP recover results";
+    fname="results_noGit\OMP recover results";
     fname=strcat(fname," lambda ",num2str(lambda),".png");
     sgtitle("OMP recover results");
     
@@ -90,7 +90,7 @@ for lambda=[10]
         imshow(I_Recovered_ISTA_complete{k});
         title(sprintf("S=%d, Err=%.4f dB",Ks(k),Err_ISTA_db(k)));
     end
-    fname="ISTA recover results";
+    fname="results_noGit\ISTA recover results";
     fname=strcat(fname," lambda ",num2str(lambda),".png");
     sgtitle("ISTA recover results");
     hgexport(gcf,fname,fig_export);
@@ -103,7 +103,7 @@ for lambda=[10]
     plot(Ks,Err_ISTA_db,'-^');
     hold off
     legend("OMP","ISTA");
-    fname="Error comparison of OMP and ISTA";
+    fname="results_noGit\Error comparison of OMP and ISTA";
     fname=strcat(fname," lambda ",num2str(lambda),".png");
     title("Error comparison of OMP and ISTA");
     ylabel("MSE (dB)")
@@ -143,7 +143,7 @@ for lambda=[10]
         imshow(I_Recovered_OMP_complete{k});
         title(sprintf("S=%d, PSNR=%.4f dB",Ks(k),PSNR_OMP(k)));
     end
-    fname="OMP recover results PSNR";
+    fname="results_noGit\OMP recover results PSNR";
     fname=strcat(fname," lambda ",num2str(lambda),".png");
     sgtitle("OMP recover results");
     
@@ -162,7 +162,7 @@ for lambda=[10]
         imshow(I_Recovered_ISTA_complete{k});
         title(sprintf("S=%d, PSNR=%.4f dB",Ks(k),PSNR_ISTA(k)));
     end
-    fname="ISTA recover results PSNR";
+    fname="results_noGit\ISTA recover results PSNR";
     fname=strcat(fname," lambda ",num2str(lambda),".png");
     sgtitle("ISTA recover results");
     hgexport(gcf,fname,fig_export);
@@ -175,7 +175,7 @@ for lambda=[10]
     plot(Ks,PSNR_ISTA,'-^');
     hold off
     legend("OMP","ISTA",'Location','southeast');
-    fname="PSNR comparison of OMP and ISTA";
+    fname="results_noGit\PSNR comparison of OMP and ISTA";
     fname=strcat(fname," lambda ",num2str(lambda),".png");
     title("PSNR comparison of OMP and ISTA");
     ylabel("PSNR (dB)")
