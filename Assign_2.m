@@ -25,7 +25,7 @@ end
 %% parpool startup
 p = gcp('nocreate');
 if isempty(p)
-    poolNum=min(N_K,16);
+    poolNum=min(w_group*h_group,16);
     parpool(poolNum);
 end
 %% OMP sampling and recovery exp
@@ -194,13 +194,9 @@ for k=1:N_K
     % Prepare the cells that are in proper structure for parallel processing
     J_Patches_vec_par=reshape(J_Patches_vec,[h_group*w_group,1]);
     J_hat_vec_par=cell(h_group*w_group,1);
-%     H_hat_par=cell(h_group*w_group,1);
-%     Idices_par=cell(h_group*w_group,1);
     I_Recovered_par_k=cell(h_group*w_group,1);
     % Start Parallel Processing
     parfor iter=1:h_group*w_group
-%         i=ceil(iter/w_group);
-%         j=iter-(i-1)*w_group;
         y=H*J_Patches_vec_par{iter}+sigma_n*randn(K,1);
         if method=="OMP"
             [J_hat_vec_par{iter},~,~] = OMP(y,H,sigma_n);
@@ -212,8 +208,6 @@ for k=1:N_K
     end
     % Dum the results back into matrix structured cells
     J_hat_vec=reshape(J_hat_vec_par,[h_group,w_group]);
-%     H_hat=reshape(H_hat_par,[h_group,w_group]);
-%     Idices=reshape(Idices_par,[h_group,w_group]);
     I_Recovered_k=reshape(I_Recovered_par_k,[h_group,w_group]);
     for i=1:h_group
         for j =1:w_group
